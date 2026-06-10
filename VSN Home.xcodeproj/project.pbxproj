@@ -256,6 +256,10 @@
 				DEVELOPMENT_TEAM = J93L8HVLVU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VSN-Home-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to capture images for your business profile and product verification.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to find the nearest delivery hub and optimize shipping for your wholesale orders.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to upload business documents and profile images.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -288,6 +292,10 @@
 				DEVELOPMENT_TEAM = J93L8HVLVU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "VSN-Home-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to capture images for your business profile and product verification.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to find the nearest delivery hub and optimize shipping for your wholesale orders.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need photo library access to upload business documents and profile images.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

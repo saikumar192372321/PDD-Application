@@ -1,0 +1,11 @@
+{
+  "baseUrl": "http://localhost:8000",
+  "admin": {
+    "email": "admin@vsn.com",
+    "password": "admin"
+  },
+  "user": {
+    "email": "saikumar2321@gmail.com",
+    "password": "Saikumar@2321"
+  }
+}

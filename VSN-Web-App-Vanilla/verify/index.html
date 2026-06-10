@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSN Home – Deployment Verification Dashboard</title>
+    <meta name="description" content="Security verification dashboard for VSN Home deployment. Run pre-flight checks before pushing to production.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header" id="app-header">
+            <div class="header-left">
+                <div class="logo-mark">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>
+                        <path d="M8 20L16 10L24 20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20L16 14L20 20" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#a855f7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="app-title">VSN Home</h1>
+                    <p class="app-subtitle">Deployment Verification Dashboard</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-indicator" id="overall-status">
+                    <span class="status-dot idle"></span>
+                    <span class="status-text">Ready</span>
+                </div>
+                <span class="timestamp" id="timestamp"></span>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <section class="summary-grid" id="summary-grid">
+            <div class="summary-card" id="card-total">
+                <div class="card-icon total">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <span class="card-value" id="total-count">0</span>
+                    <span class="card-label">Total Checks</span>
+                </div>
+            </div>
+            <div class="summary-card" id="card-passed">
+                <div class="card-icon passed">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <span class="card-value" id="passed-count">0</span>
+                    <span class="card-label">Passed</span>
+                </div>
+            </div>
+            <div class="summary-card" id="card-failed">
+                <div class="card-icon failed">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <span class="card-value" id="failed-count">0</span>
+                    <span class="card-label">Failed</span>
+                </div>
+            </div>
+            <div class="summary-card" id="card-warnings">
+                <div class="card-icon warning">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div class="card-info">
+                    <span class="card-value" id="warning-count">0</span>
+                    <span class="card-label">Warnings</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Bar -->
+        <section class="progress-section" id="progress-section">
+            <div class="progress-header">
+                <span class="progress-label" id="progress-label">Waiting to start...</span>
+                <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </section>
+
+        <!-- Check Results -->
+        <section class="checks-section">
+            <div class="section-header">
+                <h2>Security Checks</h2>
+                <button class="run-btn" id="run-btn" onclick="runAllChecks()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    Run Verification
+                </button>
+            </div>
+
+            <div class="checks-list" id="checks-list">
+                <!-- Check items will be generated by JS -->
+            </div>
+        </section>
+
+        <!-- Terminal Output -->
+        <section class="terminal-section" id="terminal-section">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="terminal-title">Verification Log</span>
+                <button class="terminal-clear" onclick="clearTerminal()" title="Clear log">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="terminal-body" id="terminal-body">
+                <div class="terminal-line system">
+                    <span class="line-prefix">$</span>
+                    <span>VSN Home Deployment Verifier v1.0 — Ready</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>VSN Home © 2026</span>
+            <span class="footer-sep">·</span>
+            <span>Security Verification Suite</span>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

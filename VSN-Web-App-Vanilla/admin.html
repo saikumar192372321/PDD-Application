@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSN Admin Panel</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0D73D9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="VSN Home">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- ─── LOGIN SCREEN ─────────────────────────────── -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h1>VSN <span>Admin</span></h1>
+        </div>
+        <p class="login-sub">Secure access to the VSN Grocery admin panel</p>
+        <form onsubmit="handleAdminLogin(event)">
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="adminEmail" placeholder="Admin Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="adminPassword" placeholder="Password" required>
+            </div>
+            <p id="loginErr" class="err-msg" style="display:none"></p>
+            <button type="submit" id="loginBtn" class="login-btn">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+        </form>
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Store</a>
+    </div>
+</div>
+
+<!-- ─── ADMIN PANEL ──────────────────────────────── -->
+<div id="adminPanel" style="display:none;">
+
+    <!-- Mobile Nav Toggle -->
+    <button class="mobile-nav-toggle" onclick="toggleAdminSidebar()" title="Menu" style="display:none">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleAdminSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="adminSidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>VSN Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item active" onclick="showTab('dashboard', this)"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+            <a class="nav-item" onclick="showTab('orders', this)"><i class="fa-solid fa-box"></i> Orders</a>
+            <a class="nav-item" onclick="showTab('products', this)"><i class="fa-solid fa-tags"></i> Products</a>
+            <a class="nav-item" onclick="showTab('users', this)"><i class="fa-solid fa-users"></i> Users</a>
+            <a class="nav-item" onclick="showTab('notifications', this)"><i class="fa-solid fa-bell"></i> Notifications</a>
+            <a class="nav-item" onclick="showTab('settings', this)"><i class="fa-solid fa-gear"></i> Settings</a>
+            <a class="nav-item" href="index.html" target="_blank"><i class="fa-solid fa-store"></i> View Store</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminEmailDisplay"></span>
+            <button onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content active-tab">
+            <div class="page-header">
+                <div>
+                    <h2>Dashboard</h2>
+                    <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem;">
+                        <span id="backendStatusPill" class="backend-status-pill checking">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Checking connection...
+                        </span>
+                    </div>
+                </div>
+                <div class="period-tabs">
+                    <button class="period-btn active" onclick="loadAnalytics('weekly', this)">Weekly</button>
+                    <button class="period-btn" onclick="loadAnalytics('daily', this)">Today</button>
+                    <button class="period-btn" onclick="loadAnalytics('monthly', this)">Monthly</button>
+                </div>
+            </div>
+            <div class="kpi-grid" id="kpiGrid">
+                <div class="kpi-card shimmer"></div>
+                <div class="kpi-card shimmer"></div>
+                <div class="kpi-card shimmer"></div>
+                <div class="kpi-card shimmer"></div>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h4>Revenue Over Time</h4>
+                    <div class="bar-chart" id="revenueChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h4>Top Products</h4>
+                    <div class="bar-chart" id="productsChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h4>Order Status</h4>
+                    <div class="status-chart" id="statusChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div id="tab-orders" class="tab-content">
+            <div class="page-header">
+                <h2>All Orders</h2>
+                <div style="display:flex;gap:0.75rem;">
+                    <button class="mini-btn" style="background:var(--card);padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;font-weight:700;" onclick="exportOrdersToCSV()"><i class="fa-solid fa-file-csv" style="color:#10b981;font-size:1.05rem;"></i> Export CSV</button>
+                    <button class="action-btn" onclick="openCreateOrderModal()"><i class="fa-solid fa-plus"></i> Create Order</button>
+                </div>
+            </div>
+            <div class="table-card">
+                <table class="data-table" id="ordersTable">
+                    <thead><tr>
+                        <th>Order ID</th><th>Customer</th><th>Amount</th>
+                        <th>Payment</th><th>Status</th><th>Date</th><th>Action</th>
+                    </tr></thead>
+                    <tbody id="ordersTableBody"><tr><td colspan="7" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PRODUCTS TAB -->
+        <div id="tab-products" class="tab-content">
+            <div class="page-header">
+                <h2>Products</h2>
+                <button class="action-btn" onclick="openProductModal()"><i class="fa-solid fa-plus"></i> Add Product</button>
+            </div>
+            <div class="table-card">
+                <table class="data-table">
+                    <thead><tr>
+                        <th>Name</th><th>Category</th><th>Retail ₹</th><th>Wholesale ₹</th>
+                        <th>Stock</th><th>Trending</th><th>Action</th>
+                    </tr></thead>
+                    <tbody id="productsTableBody"><tr><td colspan="7" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- USERS TAB -->
+        <div id="tab-users" class="tab-content">
+            <div class="page-header"><h2>Registered Users</h2></div>
+            <div class="table-card">
+                <table class="data-table">
+                    <thead><tr>
+                        <th>Name</th><th>Email</th><th>Phone</th><th>Business</th><th>Coins</th><th>Joined</th>
+                    </tr></thead>
+                    <tbody id="usersTableBody"><tr><td colspan="6" class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS TAB -->
+        <div id="tab-notifications" class="tab-content">
+            <div class="page-header"><h2>Send Notification</h2></div>
+            <div class="notif-form-card">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="notifTitle" class="form-input" placeholder="Notification title">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="notifType" class="form-input">
+                            <option>General</option>
+                            <option>Offer</option>
+                            <option>Order Update</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="notifMessage" class="form-input" rows="4" placeholder="Write your message here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Send To (leave blank for ALL users)</label>
+                    <input type="email" id="notifEmail" class="form-input" placeholder="user@example.com or blank for broadcast">
+                </div>
+                <button class="action-btn" onclick="sendNotification()"><i class="fa-solid fa-paper-plane"></i> Send Notification</button>
+                <p id="notifResult" style="margin-top:1rem;font-weight:600;"></p>
+            </div>
+        </div>
+
+        <!-- SETTINGS / CONFIG HUB TAB -->
+        <div id="tab-settings" class="tab-content">
+            <div class="page-header"><h2>Config Hub & Settings</h2></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:flex-start;">
+                <!-- Config Hub Settings -->
+                <div class="notif-form-card" style="max-width:100%;">
+                    <h3 style="margin-bottom:1.25rem;"><i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Business & Logistics Config</h3>
+                    <form onsubmit="handleSaveSettings(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Support Email</label>
+                                <input type="email" id="cfgSupportEmail" class="form-input" placeholder="support@vsnhome.com">
+                            </div>
+                            <div class="form-group">
+                                <label>WhatsApp Support Number</label>
+                                <input type="text" id="cfgSupportWhatsapp" class="form-input" placeholder="919876543210">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Flat Delivery Charge (₹)</label>
+                                <input type="number" id="cfgDeliveryCharge" class="form-input" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Min Order Value (₹)</label>
+                                <input type="number" id="cfgMinOrderValue" class="form-input" placeholder="1000">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Free Delivery Threshold (₹)</label>
+                                <input type="number" id="cfgFreeThreshold" class="form-input" placeholder="5000">
+                            </div>
+                            <div class="form-group">
+                                <label>Operational Radius (km)</label>
+                                <input type="number" id="cfgDeliveryRadius" class="form-input" placeholder="25">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Hub Latitude</label>
+                                <input type="number" step="any" id="cfgHubLat" class="form-input" placeholder="21.1458">
+                            </div>
+                            <div class="form-group">
+                                <label>Hub Longitude</label>
+                                <input type="number" step="any" id="cfgHubLng" class="form-input" placeholder="79.0882">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Merchant UPI ID</label>
+                                <input type="text" id="cfgUpiId" class="form-input" placeholder="vsnwholesale@upi">
+                            </div>
+                            <div class="form-group">
+                                <label>Referral Reward (Coins)</label>
+                                <input type="number" id="cfgReferralReward" class="form-input" placeholder="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Delivery Policy Note</label>
+                            <input type="text" id="cfgDeliveryNote" class="form-input" placeholder="Note shown on checkout...">
+                        </div>
+                        
+                        <div style="border-top:1px dashed var(--border);padding-top:1rem;margin-top:1rem;">
+                            <h4 style="margin-bottom:0.75rem;"><i class="fa-solid fa-lock" style="color:var(--primary)"></i> Gateways & Security</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Razorpay Key ID</label>
+                                    <input type="text" id="cfgRazorpayKey" class="form-input" placeholder="rzp_test_...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Razorpay Secret Key <span style="font-weight:400;color:var(--muted);">(leave blank to keep unchanged)</span></label>
+                                    <input type="password" id="cfgRazorpaySecret" class="form-input" placeholder="••••••••">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>System Master Key * <span style="font-weight:400;color:var(--muted);">(Required to save changes)</span></label>
+                                <input type="password" id="cfgMasterKey" class="form-input" placeholder="Enter master key to authorize changes" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" id="saveSettingsBtn" class="action-btn" style="margin-top:1rem;width:100%;justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> Save Settings</button>
+                    </form>
+                </div>
+
+                <!-- Admin Enrollment -->
+                <div class="notif-form-card" style="max-width:100%;">
+                    <h3 style="margin-bottom:1.25rem;"><i class="fa-solid fa-user-shield" style="color:var(--primary)"></i> Onboard New Administrator</h3>
+                    <p style="color:var(--muted);font-size:0.82rem;margin-bottom:1.5rem;">Create a new administrator account. Once created, they can log in to this portal using their credentials.</p>
+                    <form onsubmit="handleEnrollAdmin(event)">
+                        <div class="form-group">
+                            <label>Admin Email Address *</label>
+                            <input type="email" id="enrollEmail" class="form-input" placeholder="admin@vsnhome.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Security Key / Password *</label>
+                            <input type="password" id="enrollPassword" class="form-input" placeholder="Min 6 characters" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Business UPI ID <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+                            <input type="text" id="enrollUpi" class="form-input" placeholder="adminname@upi">
+                        </div>
+                        <button type="submit" id="enrollAdminBtn" class="action-btn" style="margin-top:1rem;width:100%;justify-content:center;"><i class="fa-solid fa-user-plus"></i> Enroll Admin</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ─── Order Detail Modal ───────────────────── -->
+<div class="modal-overlay" id="orderModal" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="document.getElementById('orderModal').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:1.5rem">Order Details</h3>
+        <div id="orderModalContent"></div>
+    </div>
+</div>
+
+<!-- ─── Add Product Modal ────────────────────── -->
+<div class="modal-overlay" id="productModal" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="document.getElementById('productModal').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:1.5rem">Add New Product</h3>
+        <div class="form-row">
+            <div class="form-group"><label>Product Name *</label><input type="text" id="pName" class="form-input" placeholder="e.g. Basmati Rice (Premium)"></div>
+            <div class="form-group"><label>Category *</label><input type="text" id="pCategory" class="form-input" placeholder="e.g. Staples"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Retail Price ₹ *</label><input type="number" id="pRetail" class="form-input" placeholder="500"></div>
+            <div class="form-group"><label>Wholesale Price ₹ *</label><input type="number" id="pWholesale" class="form-input" placeholder="450"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Min Order Qty</label><input type="number" id="pMinQty" class="form-input" placeholder="1" value="1"></div>
+            <div class="form-group"><label>Stock Status</label>
+                <select id="pStock" class="form-input">
+                    <option>In Stock</option><option>Low Stock</option><option>Out of Stock</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Image URL</label>
+            <input type="text" id="pImage" class="form-input" placeholder="https://..." oninput="previewProductImage(this.value)">
+            <div id="imgPreviewBox" style="display:none;margin-top:0.75rem;border-radius:12px;overflow:hidden;border:2px solid var(--border,#e5e7eb);background:#f9fafb;text-align:center;padding:0.5rem;">
+                <img id="imgPreviewEl" src="" alt="Preview" style="max-height:140px;max-width:100%;border-radius:8px;object-fit:contain;"
+                     onload="document.getElementById('imgPreviewStatus').innerHTML='<span style=\'color:#16a34a\'>✅ Image loaded successfully!</span>';this.style.opacity=1;"
+                     onerror="document.getElementById('imgPreviewStatus').innerHTML='<span style=\'color:#dc2626\'>❌ Cannot load image — check URL or use a direct image link (ends with .jpg/.png/.webp)</span>';this.style.opacity=0.2;">
+                <div id="imgPreviewStatus" style="font-size:0.78rem;margin-top:0.4rem;font-weight:500;"></div>
+            </div>
+            <p style="font-size:0.75rem;color:#6b7280;margin-top:0.4rem;">💡 Tip: Use direct image links (e.g. from <b>unsplash.com</b>, <b>imgur.com</b>) — Google Images/Pinterest URLs may not display.</p>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem">
+            <input type="checkbox" id="pTrending" style="width:18px;height:18px;">
+            <label for="pTrending">Mark as Trending</label>
+        </div>
+        <p id="productErr" class="err-msg" style="display:none;margin-top:0.5rem"></p>
+        <button class="action-btn" style="margin-top:1.5rem;width:100%;" onclick="submitProduct()"><i class="fa-solid fa-plus"></i> Add Product</button>
+    </div>
+</div>
+
+<!-- ─── Update Order Status Modal ──────────────── -->
+<div class="modal-overlay" id="statusModal" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:420px">
+        <button class="modal-close" onclick="document.getElementById('statusModal').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:0.5rem">Update Order Status</h3>
+        <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.5rem">Order: <code id="statusOrderIdLabel"></code></p>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Order Status</label>
+                <select id="statusSelect" class="form-input">
+                    <option>Pending</option>
+                    <option>Processing</option>
+                    <option>Shipped</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Payment Status</label>
+                <select id="paymentStatusSelect" class="form-input">
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Failed</option>
+                    <option>Refunded</option>
+                </select>
+            </div>
+        </div>
+        <button id="saveStatusBtn" class="action-btn" style="margin-top:1rem;width:100%;" onclick="saveOrderStatus()">
+            <i class="fa-solid fa-check"></i> Save Changes
+        </button>
+    </div>
+</div>
+
+<!-- ─── Create Manual Order Modal ────────────────── -->
+<div class="modal-overlay" id="createOrderModal" onclick="this.style.display='none'">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:680px">
+        <button class="modal-close" onclick="document.getElementById('createOrderModal').style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:1.25rem"><i class="fa-solid fa-cart-plus" style="color:var(--primary)"></i> Create Manual Wholesale Order</h3>
+        <form onsubmit="handleCreateManualOrder(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Customer Email Address *</label>
+                    <input type="email" id="moCustomerEmail" class="form-input" placeholder="customer@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Shipping / Shop Address *</label>
+                    <input type="text" id="moAddress" class="form-input" placeholder="Shop Name, Street, City, Pincode" required>
+                </div>
+            </div>
+            
+            <div style="margin:1.25rem 0;">
+                <h4 style="margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+                    <span>Order Items *</span>
+                    <button type="button" class="mini-btn" onclick="addManualOrderItemRow()"><i class="fa-solid fa-plus"></i> Add Item</button>
+                </h4>
+                <div id="moItemsContainer" style="display:flex;flex-direction:column;gap:0.75rem;max-height:220px;overflow-y:auto;padding-right:0.5rem;margin-bottom:0.5rem;">
+                    <!-- Rows will be injected here dynamically -->
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="moPaymentMethod" class="form-input">
+                        <option>Cash on Delivery</option>
+                        <option>UPI Transfer</option>
+                        <option>Bank Transfer</option>
+                        <option>Razorpay (Online Payment)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Offer/Discount</label>
+                    <select id="moOfferSelect" class="form-input" onchange="recalculateManualOrderTotal()">
+                        <option value="">No Discount</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Recalculated Breakdown -->
+            <div class="order-total-row" style="flex-direction:column;align-items:flex-end;border-top:1px dashed var(--border);margin-top:1.25rem;padding-top:1rem;gap:0.4rem;">
+                <div style="font-size:0.88rem;color:var(--muted)">Subtotal: <span id="moSubtotalLabel">₹0.00</span></div>
+                <div style="font-size:0.88rem;color:#ef4444">Discount: <span id="moDiscountLabel">-₹0.00</span></div>
+                <div style="font-size:0.88rem;color:var(--muted)">Delivery Charge: <span id="moDeliveryLabel">₹0.00</span></div>
+                <div style="font-size:1.25rem;font-weight:900;color:var(--text);margin-top:0.25rem;">Final Total: <span id="moTotalLabel">₹0.00</span></div>
+            </div>
+
+            <p id="moError" class="err-msg" style="display:none;margin-top:0.75rem"></p>
+            <button type="submit" id="createOrderSubmitBtn" class="action-btn" style="margin-top:1.5rem;width:100%;justify-content:center;"><i class="fa-solid fa-circle-check"></i> Place Manual Order</button>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

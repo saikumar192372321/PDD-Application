@@ -1,0 +1,356 @@
+import SwiftUI
+
+// MARK: - Admin Order Detail (Modern B2B Order Management)
+struct AdminOrderDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var productStore: GroceryProductStore
+    @State var order: Order
+    @State private var useCustomDate: Bool = false
+    @State private var selectedDate: Date = Date()
+    @State private var isSaving = false
+    @State private var showShareSheet = false
+    @State private var pdfURL: URL?
+    @State private var isGenerating = false
+
+    private let allOrderStatuses: [OrderStatus] = [.pending, .processing, .outForDelivery, .delivered, .cancelled]
+    private let allPaymentStatuses: [PaymentStatus] = [.pending, .paid, .failed, .refunded]
+
+    var body: some View {
+        Group {
+            ZStack {
+                AppColors.background.ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
+                        headerSection
+                        managementSection
+                        scheduleSection
+                        timelineSection
+                        manifestSection
+                        logisticsSection
+                        actionSection
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let url = pdfURL {
+                ActivityView(activityItems: [url])
+            }
+        }
+        .navigationBarBackButtonHidden()
+        .hidesTabBar()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(AppColors.textPrimary)
+                }
+            }
+        }
+        .onAppear {
+            if let customDate = order.customDeliveryDate {
+                useCustomDate = true
+                selectedDate = customDate
+            }
+        }
+    }
+    
+    // MARK: - Sub-Sections
+    
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Order #\(order.id.prefix(8).uppercased())")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(AppColors.textPrimary)
+            Text("Manage lifecycle and logistics for this business order.")
+                .font(.system(size: 14))
+                .foregroundColor(AppColors.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 22)
+        .padding(.top, 20)
+    }
+    
+    private var managementSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Management Control")
+                .font(.system(size: 16, weight: .bold))
+            
+            VStack(spacing: 16) {
+                StatusPickerField(label: "Order Status", selection: $order.status, options: allOrderStatuses)
+                StatusPickerField(label: "Payment Status", selection: $order.paymentStatus, options: allPaymentStatuses)
+            }
+        }
+        .padding(20)
+        .background(AppColors.surfaceLight)
+        .cornerRadius(20)
+        .padding(.horizontal, 22)
+    }
+    
+    private var scheduleSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Text("Delivery Schedule")
+                    .font(.system(size: 16, weight: .bold))
+                Spacer()
+                Toggle("", isOn: $useCustomDate)
+                    .labelsHidden()
+            }
+            
+            if useCustomDate {
+                DatePicker("Custom Date", selection: $selectedDate, in: Date()..., displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .font(.system(size: 14, weight: .medium))
+                    .onChange(of: selectedDate) { order.customDeliveryDate = $0 }
+            } else {
+                Text("Defaults to automated logistical calculation.")
+                    .font(.system(size: 12))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+        }
+        .padding(20)
+        .background(AppColors.surfaceLight)
+        .cornerRadius(20)
+        .padding(.horizontal, 22)
+    }
+    
+    private var manifestSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack {
+                Text("ITEM MANIFEST")
+                    .font(.system(size: 14, weight: .black))
+                    .tracking(1)
+                    .foregroundColor(AppColors.textSecondary)
+                Spacer()
+                Text("\((order.items ?? []).count) Items")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(AppColors.primary)
+            }
+            
+            VStack(spacing: 0) {
+                ForEach(order.items ?? []) { item in
+                    HStack(spacing: 16) {
+                        ProductImageView(imageName: item.product.image)
+                            .frame(width: 40, height: 40)
+                            .cornerRadius(6)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(item.product.name)
+                                .font(.system(size: 14, weight: .bold))
+                            Text("SKU: \(item.product.id.prefix(6).uppercased())")
+                                .font(.system(size: 10))
+                                .foregroundColor(AppColors.textSecondary)
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("₹\(Int(item.product.wholesalePrice)) × \(item.quantity)")
+                                .font(.system(size: 12))
+                            Text("₹\(Int(item.product.wholesalePrice * Double(item.quantity)))")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(AppColors.textPrimary)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                    
+                    if item.id != (order.items ?? []).last?.id {
+                        Divider().padding(.leading, 56)
+                    }
+                }
+            }
+            
+            VStack(spacing: 12) {
+                Divider()
+                SummaryLineView(label: "Subtotal", value: "₹\(Int(order.total + order.discountAmount - order.deliveryCharge))")
+                if order.discountAmount > 0 {
+                    SummaryLineView(label: "Applied Discount", value: "-₹\(Int(order.discountAmount))", color: AppColors.success)
+                }
+                if order.deliveryCharge > 0 {
+                    SummaryLineView(label: "Logistics Charge", value: "+₹\(Int(order.deliveryCharge))")
+                }
+                HStack {
+                    Text("Final Receivable")
+                        .font(.system(size: 16, weight: .bold))
+                    Spacer()
+                    Text("₹\(Int(order.total))")
+                        .font(.system(size: 22, weight: .black))
+                        .foregroundColor(AppColors.primary)
+                }
+            }
+        }
+        .padding(20)
+        .background(AppColors.surfaceLight)
+        .cornerRadius(20)
+        .padding(.horizontal, 22)
+    }
+    
+    private var logisticsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Logistics Identity")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(AppColors.textSecondary)
+            
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "person.fill").foregroundColor(AppColors.primary).frame(width: 20)
+                    Text(order.userEmail).font(.system(size: 14, weight: .medium))
+                }
+                HStack(alignment: .top) {
+                    Image(systemName: "mappin.circle.fill").foregroundColor(.red).frame(width: 20)
+                    Text(order.address ?? "No Address").font(.system(size: 13)).lineLimit(3)
+                }
+            }
+        }
+        .padding(20)
+        .background(AppColors.surfaceLight)
+        .cornerRadius(20)
+        .padding(.horizontal, 22)
+    }
+    
+    private var actionSection: some View {
+        VStack(spacing: 16) {
+            Button(action: saveChanges) {
+                if isSaving {
+                    ProgressView().tint(.white)
+                } else {
+                    Text("SAVE CHANGES")
+                        .font(.system(size: 14, weight: .bold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(AppColors.primary)
+                        .foregroundColor(.white)
+                        .cornerRadius(14)
+                }
+            }
+            .disabled(isSaving)
+            
+            Button(action: downloadBill) {
+                HStack(spacing: 12) {
+                    if isGenerating {
+                        ProgressView().tint(AppColors.primary)
+                    } else {
+                        Image(systemName: "doc.text.fill")
+                    }
+                    Text(isGenerating ? "GENERATING..." : "DOWNLOAD SALES BILL")
+                        .font(.system(size: 13, weight: .bold))
+                }
+                .foregroundColor(AppColors.primary)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(AppColors.primary.opacity(0.08))
+                .cornerRadius(12)
+            }
+        }
+        .padding(.horizontal, 22)
+        .padding(.bottom, 40)
+    }
+    
+    private var timelineSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Order Fulfillment Timeline")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(AppColors.textSecondary)
+            
+            VStack(alignment: .leading, spacing: 0) {
+                TimelineNode(title: "Order Received", description: "Payment status: \(order.paymentStatus.rawValue)", isCompleted: true, isLast: false)
+                TimelineNode(title: "Picking & Packing", description: "Warehouse processing", isCompleted: order.status != .pending, isLast: false)
+                TimelineNode(title: "Logistics Handoff", description: "Out for delivery", isCompleted: order.status == .outForDelivery || order.status == .delivered, isLast: false)
+                TimelineNode(title: "Delivered", description: "Settlement finalized", isCompleted: order.status == .delivered, isLast: true)
+            }
+        }
+        .padding(20)
+        .background(AppColors.surfaceLight)
+        .cornerRadius(20)
+        .padding(.horizontal, 22)
+    }
+
+    private func downloadBill() {
+        HapticManager.shared.trigger(.medium)
+        isGenerating = true
+        Task {
+            let url = InvoiceGenerator.generateInvoicePDF(order: order, selectedLanguage: .english)
+            await MainActor.run {
+                self.pdfURL = url
+                self.isGenerating = false
+                if url != nil {
+                    self.showShareSheet = true
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        isSaving = true
+        if useCustomDate { order.customDeliveryDate = selectedDate }
+        Task {
+            await productStore.updateOrderStatus(order)
+            await MainActor.run { 
+                isSaving = false 
+                HapticManager.shared.notify(.success)
+                dismiss()
+            }
+        }
+    }
+}
+
+struct TimelineNode: View {
+    let title: String
+    let description: String
+    let isCompleted: Bool
+    let isLast: Bool
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(spacing: 0) {
+                Circle()
+                    .fill(isCompleted ? AppColors.primary : AppColors.textSecondary.opacity(0.2))
+                    .frame(width: 12, height: 12)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                
+                if !isLast {
+                    Rectangle()
+                        .fill(isCompleted ? AppColors.primary : AppColors.textSecondary.opacity(0.1))
+                        .frame(width: 2)
+                        .frame(minHeight: 30)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(isCompleted ? AppColors.textPrimary : AppColors.textSecondary)
+                Text(description)
+                    .font(.system(size: 11))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            .padding(.bottom, isLast ? 0 : 20)
+        }
+    }
+}
+
+struct StatusPickerField<T: RawRepresentable>: View where T.RawValue == String, T: Hashable {
+    let label: String
+    @Binding var selection: T
+    let options: [T]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label.uppercased())
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(AppColors.textSecondary)
+            
+            Picker("", selection: $selection) {
+                ForEach(options, id: \.self) { option in
+                    Text(option.rawValue).tag(option)
+                }
+            }
+            .pickerStyle(.menu)
+            .padding(10)
+            .background(Color.white)
+            .cornerRadius(10)
+            .shadow(color: Color.black.opacity(0.02), radius: 2, x: 0, y: 1)
+        }
+    }
+}

@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VSN Grocery — Premium Quality, Delivered Fast</title>
+    <meta name="description" content="VSN Grocery — Fresh groceries, wholesale pricing. Order online and get delivered to your door.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0D73D9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="VSN Home">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ─── Navbar ──────────────────────────────────────── -->
+<nav class="navbar">
+    <div class="logo" onclick="navigate('home')">
+        <h1>VSN <span>Grocery</span></h1>
+    </div>
+    <div class="nav-links">
+        <a href="#" class="nav-link active" data-view="home"       onclick="navigate('home')">Home</a>
+        <a href="#" class="nav-link"        data-view="categories" onclick="navigate('categories')">Categories</a>
+        <a href="#" class="nav-link"        data-view="offers"     onclick="navigate('offers')">Offers</a>
+        <a href="#" class="nav-link"        data-view="orders"     onclick="navigate('orders')">My Orders</a>
+        <a href="#" class="nav-link"        data-view="chatbot"    onclick="navigate('chatbot')">AI Assistant</a>
+        <a href="#" class="nav-link"        data-view="analytics"  onclick="navigate('analytics')">Analytics</a>
+    </div>
+    <div class="nav-actions">
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Search products...">
+        </div>
+        <button class="icon-btn" onclick="navigate('cart')">
+            <i class="fa-solid fa-shopping-cart"></i>
+            <span class="badge" id="cartBadge">0</span>
+        </button>
+        <button class="icon-btn" id="notifBtn" onclick="toggleNotifDropdown()" title="Notifications">
+            <i class="fa-solid fa-bell"></i>
+            <span class="badge" id="notifBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle Theme">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="langBtn" onclick="openModal('languageModal')" title="Switch Language">
+            <i class="fa-solid fa-language"></i>
+        </button>
+        <button class="icon-btn" id="userBtn" onclick="session ? navigate('profile') : openModal('loginModal')">
+            <i class="fa-solid fa-user"></i>
+        </button>
+        <button class="hamburger" id="hamburgerBtn" onclick="openMobileNav()" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- ─── Notifications Dropdown ────────────────────────── -->
+<div class="notif-dropdown" id="notifDropdown">
+    <div class="notif-dropdown-header">
+        <h4>Notifications</h4>
+        <button class="clear-all-btn" onclick="markAllNotifsRead()">Mark all read</button>
+    </div>
+    <div class="notif-dropdown-body" id="notifList">
+        <p class="empty-msg">No notifications.</p>
+    </div>
+</div>
+
+<!-- ─── Mobile Nav ─────────────────────────────────────── -->
+<div class="mobile-nav" id="mobileNav" onclick="closeMobileNav()">
+    <div class="mobile-nav-panel" onclick="event.stopPropagation()">
+        <button class="mobile-nav-close" onclick="closeMobileNav()"><i class="fa-solid fa-xmark"></i></button>
+        <a href="#" class="nav-link active" onclick="navigate('home');closeMobileNav()">🏠 Home</a>
+        <a href="#" class="nav-link" onclick="navigate('categories');closeMobileNav()">📦 Categories</a>
+        <a href="#" class="nav-link" onclick="navigate('offers');closeMobileNav()">🏷️ Offers</a>
+        <a href="#" class="nav-link" onclick="navigate('orders');closeMobileNav()">📋 My Orders</a>
+        <a href="#" class="nav-link" onclick="navigate('chatbot');closeMobileNav()">🤖 AI Assistant</a>
+        <a href="#" class="nav-link" onclick="navigate('analytics');closeMobileNav()">📊 Analytics</a>
+    </div>
+</div>
+
+<!-- ─── App Content ─────────────────────────────────── -->
+<div id="app-content">
+
+    <!-- HOME VIEW -->
+    <div id="view-home" class="view-container active-view">
+        <header class="hero">
+            <div class="hero-content">
+                <span class="pill"><i class="fa-solid fa-bolt"></i> Fastest Delivery</span>
+                <h2>Fresh Groceries,<br>Delivered to<br>Your Door.</h2>
+                <p>Experience the finest quality products selected just for you. Wholesale pricing for all.</p>
+                <button class="primary-btn" onclick="navigate('categories')">
+                    Shop Now <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+            <div class="hero-image">
+                <div class="glass-card promotion-card">
+                    <div class="promo-icon"><i class="fa-solid fa-leaf"></i></div>
+                    <div>
+                        <h4>100% Organic</h4>
+                        <p>Fresh from farms</p>
+                    </div>
+                </div>
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80"
+                     alt="Fresh Vegetables" class="main-hero-img">
+            </div>
+        </header>
+
+        <section class="section">
+            <div class="section-header">
+                <h3>Trending Products</h3>
+                <a href="#" class="view-all" onclick="navigate('categories')">View All →</a>
+            </div>
+            <div class="product-grid" id="homeProductContainer">
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+                <div class="skeleton-card"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- CATEGORIES VIEW -->
+    <div id="view-categories" class="view-container">
+        <section class="section">
+            <div class="section-header"><h3>Browse Categories</h3></div>
+            <div class="category-grid" id="allCategoriesContainer"></div>
+
+            <div class="section-header" style="margin-top:3rem">
+                <h3 id="categoryTitle">All Products</h3>
+            </div>
+            <div class="product-grid" id="categoryProductContainer"></div>
+        </section>
+    </div>
+
+    <!-- OFFERS VIEW -->
+    <div id="view-offers" class="view-container">
+        <section class="section">
+            <div class="section-header"><h3>Exclusive Offers</h3></div>
+            <div id="offersListContainer"></div>
+        </section>
+    </div>
+
+    <!-- CART VIEW -->
+    <div id="view-cart" class="view-container">
+        <section class="section" style="max-width:860px;margin:0 auto;">
+            <div class="section-header"><h3>Your Cart</h3></div>
+
+            <div id="cartItemsContainer" class="cart-items"></div>
+
+            <!-- Offers in Cart -->
+            <div id="cartOffersSection" style="display:none;margin-bottom:2rem;">
+                <h4 style="margin-bottom:1rem;">Available Offers</h4>
+                <div id="cartOffersList" class="offers-row"></div>
+            </div>
+
+            <!-- Delivery Address -->
+            <div id="addressSection" style="display:none;">
+                <div class="address-card">
+                    <h4><i class="fa-solid fa-location-dot" style="color:var(--primary-color)"></i> Delivery Address</h4>
+                    <div style="display:flex;gap:0.75rem;margin:0.85rem 0 1rem;flex-wrap:wrap;">
+                        <button type="button" class="mini-btn" onclick="autoDetectAddress()" style="background:var(--bg-main);display:flex;align-items:center;gap:0.35rem;font-weight:700;"><i class="fa-solid fa-location-crosshairs" style="color:var(--primary-color);"></i> Auto-Detect Address</button>
+                        <button type="button" class="mini-btn" onclick="openModal('mapPickerModal')" style="background:var(--bg-main);display:flex;align-items:center;gap:0.35rem;font-weight:700;"><i class="fa-solid fa-map" style="color:var(--primary-color);"></i> Map Picker</button>
+                        <span id="coordLockStatus" style="font-size:0.75rem;color:var(--text-muted);display:flex;align-items:center;font-weight:600;"></span>
+                    </div>
+                    <div class="address-grid">
+                        <input type="text" id="shopName"       class="addr-input" placeholder="Shop Name / Your Name *">
+                        <input type="text" id="addressStreet"  class="addr-input" placeholder="Street Address *">
+                        <input type="text" id="addressCity"    class="addr-input" placeholder="City *">
+                        <input type="text" id="addressPincode" class="addr-input" placeholder="Pincode *">
+                    </div>
+                    <div class="payment-row">
+                        <label><i class="fa-solid fa-credit-card"></i> Payment Method</label>
+                        <select id="paymentMethod" class="addr-input" style="max-width:220px">
+                            <option value="Cash on Delivery">Cash on Delivery</option>
+                            <option value="UPI Transfer">UPI Transfer</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Razorpay (Online Payment)">Razorpay (Online Payment)</option>
+                            <option value="Razorpay (Test Mode)">Razorpay (Test Mode)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- GST Bill Option (B2B wholesale) -->
+                    <div class="gst-toggle-row" style="margin-top:1.25rem;border-top:1px dashed var(--border-color);padding-top:1rem;">
+                        <label style="display:flex;align-items:center;gap:0.5rem;font-weight:600;cursor:pointer;font-size:0.9rem;">
+                            <input type="checkbox" id="requiresGST" onchange="toggleGSTFields()" style="width:16px;height:16px;">
+                            Requires GST Invoice (B2B wholesale)
+                        </label>
+                        <div id="gstFields" style="display:none;margin-top:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+                            <input type="text" id="gstBusinessName" class="addr-input" placeholder="Registered Business Name">
+                            <input type="text" id="gstNumberInput"  class="addr-input" placeholder="GSTIN (e.g. 22AAAAA1111A1Z1)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div id="cartSummary" class="cart-summary" style="display:none;">
+                <h4 style="margin-bottom:1.5rem;">Amount Breakdown</h4>
+                <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₹0.00</span></div>
+                <div class="summary-row savings"><span>Your Savings</span><span id="summarySavings">₹0.00</span></div>
+                <div class="summary-row discount"><span>Offer Discount</span><span id="summaryOfferDisc">—</span></div>
+                <div class="summary-row"><span>Delivery</span><span id="summaryDelivery">₹0.00</span></div>
+                <div class="summary-divider"></div>
+                <div class="summary-total"><span>Total</span><span id="cartTotal">₹0.00</span></div>
+                <button id="checkoutBtn" class="primary-btn checkout-btn" onclick="processCheckout()">
+                    Place Order
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ORDERS VIEW -->
+    <div id="view-orders" class="view-container">
+        <section class="section" style="max-width:800px;margin:0 auto;">
+            <div class="section-header"><h3>My Orders</h3></div>
+            <div id="ordersContainer"></div>
+        </section>
+    </div>
+
+    <!-- CHATBOT VIEW (In-page version) -->
+    <div id="view-chatbot" class="view-container">
+        <section class="section" style="max-width:800px;margin:0 auto;">
+            <div class="section-header"><h3>AI Chatbot Assistant</h3></div>
+            <div class="chatbot-page-container">
+                <div id="chatMessagesPage" class="chat-messages-container">
+                    <div class="message bot">
+                        <div class="msg-bubble">Hello! I'm your VSN AI Assistant. How can I help you today?</div>
+                    </div>
+                </div>
+                <!-- Suggested Quick Replies -->
+                <div class="chat-suggestions" style="padding:0.75rem 1.25rem;display:flex;gap:0.5rem;flex-wrap:wrap;background:rgba(255,255,255,0.4);border-top:1px solid var(--border-color)">
+                    <button class="suggestion-btn" onclick="sendChatSuggestion('Page', 'What is the price of sugar?')">Price of Sugar 🍚</button>
+                    <button class="suggestion-btn" onclick="sendChatSuggestion('Page', 'Are there any active offers?')">Offers 🏷️</button>
+                    <button class="suggestion-btn" onclick="sendChatSuggestion('Page', 'What is the delivery charge?')">Delivery Rules 🚚</button>
+                    <button class="suggestion-btn" onclick="sendChatSuggestion('Page', 'namaste')">Hindi/Regional 🇮🇳</button>
+                </div>
+                <div class="chat-input-row">
+                    <button class="voice-btn" id="voiceBtnPage" onclick="toggleVoice('Page')"><i class="fa-solid fa-microphone"></i></button>
+                    <input type="text" id="chatInputPage" placeholder="Ask about products, orders, or support...">
+                    <button class="primary-btn" onclick="sendMessage('Page')"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ANALYTICS VIEW -->
+    <div id="view-analytics" class="view-container">
+        <section class="section" style="max-width:1000px;margin:0 auto;">
+            <div class="section-header"><h3>Business Insights & Analytics</h3></div>
+            <div class="analytics-grid">
+                <div class="glass-card stat-card">
+                    <h4>Total Spending</h4>
+                    <div class="stat-main">₹<span id="totalSpent">0.00</span></div>
+                    <p class="stat-sub">Across <span id="totalOrdersCount">0</span> orders</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h4>Savings</h4>
+                    <div class="stat-main" style="color:var(--accent-color)">₹<span id="totalSavings">0.00</span></div>
+                    <p class="stat-sub">You've saved 15% on average</p>
+                </div>
+                <div class="glass-card stat-card">
+                    <h4>Wallet Coins</h4>
+                    <div class="stat-main" style="color:#f59e0b">🪙 <span id="totalCoins">0</span></div>
+                    <p class="stat-sub">Earned via referrals</p>
+                </div>
+            </div>
+            
+            <div class="charts-row" style="margin-top:2rem">
+                <div class="glass-card chart-container">
+                    <h4>Purchase History</h4>
+                    <div id="userPurchaseChart" style="height:200px;display:flex;align-items:flex-end;gap:10px;padding:20px;">
+                        <!-- Simple CSS bar chart simulation -->
+                        <div class="bar" style="height:40%;flex:1;background:var(--primary-color);border-radius:4px 4px 0 0"></div>
+                        <div class="bar" style="height:70%;flex:1;background:var(--primary-color);border-radius:4px 4px 0 0"></div>
+                        <div class="bar" style="height:55%;flex:1;background:var(--primary-color);border-radius:4px 4px 0 0"></div>
+                        <div class="bar" style="height:90%;flex:1;background:var(--primary-color);border-radius:4px 4px 0 0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+    <!-- PROFILE VIEW -->
+    <div id="view-profile" class="view-container">
+        <section class="section" id="profileSection" style="max-width:680px;margin:0 auto;transition:max-width 0.3s ease;">
+            <div class="section-header"><h3>My Profile</h3></div>
+            <div id="profileContainer"></div>
+        </section>
+    </div>
+
+    <!-- ─── Footer ─────────────────────────────────── -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo" style="margin-bottom: 1rem;">
+                    <h1 style="color:var(--text-main); font-size:1.4rem; font-weight:800;">VSN <span style="color:var(--primary-color)">Grocery</span></h1>
+                </div>
+                <p>Delivering premium quality fresh groceries directly to your door at wholesale pricing.</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="navigate('home')">Home</a></li>
+                    <li><a href="#" onclick="navigate('categories')">Shop Categories</a></li>
+                    <li><a href="#" onclick="navigate('offers')">Latest Offers</a></li>
+                    <li><a href="#" onclick="navigate('cart')">Your Cart</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Customer Support</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="navigate('orders')">Track Order</a></li>
+                    <li><a href="#">Return Policy</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Info</h4>
+                <ul class="footer-links">
+                    <li style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="margin-right: 0.5rem; color: var(--primary-color);"></i> 123 Wholesale Market, Mumbai</li>
+                    <li style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="margin-right: 0.5rem; color: var(--primary-color);"></i> +91 98765 43210</li>
+                    <li style="color: var(--text-muted);"><i class="fa-solid fa-envelope" style="margin-right: 0.5rem; color: var(--primary-color);"></i> support@vsngrocery.com</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 VSN Grocery. All Rights Reserved.
+        </div>
+    </footer>
+
+</div><!-- /app-content -->
+
+<!-- ─── Floating Chatbot (Accessible from anywhere) ──────────────── -->
+<div id="floatingChatbot" class="floating-chat">
+    <div class="chat-header" onclick="toggleFloatingChat()">
+        <span><i class="fa-solid fa-robot"></i> AI Assistant</span>
+        <i class="fa-solid fa-chevron-up" id="chatToggleIcon"></i>
+    </div>
+    <div class="chat-body" id="chatBody">
+        <div id="chatMessagesFloating" class="chat-messages-container">
+            <div class="message bot">
+                <div class="msg-bubble">Hi! Need help with your wholesale order?</div>
+            </div>
+        </div>
+        <!-- Suggested Quick Replies -->
+        <div class="chat-suggestions" style="padding:0.5rem 1rem;display:flex;gap:0.4rem;flex-wrap:wrap;background:rgba(255,255,255,0.4);border-top:1px solid var(--border-color)">
+            <button class="suggestion-btn" onclick="sendChatSuggestion('Floating', 'What is the price of sugar?')">Price of Sugar</button>
+            <button class="suggestion-btn" onclick="sendChatSuggestion('Floating', 'Are there any active offers?')">Offers</button>
+            <button class="suggestion-btn" onclick="sendChatSuggestion('Floating', 'What is the delivery charge?')">Delivery Rules</button>
+        </div>
+        <div class="chat-input-row">
+            <button class="voice-btn" id="voiceBtnFloating" onclick="toggleVoice('Floating')"><i class="fa-solid fa-microphone"></i></button>
+            <input type="text" id="chatInputFloating" placeholder="Type a message...">
+            <button onclick="sendMessage('Floating')"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Unified Auth Modal ──────────────────────────── -->
+<div class="modal" id="loginModal">
+    <div class="modal-box auth-modal-box">
+        <button class="modal-close" onclick="closeModal('loginModal')"><i class="fa-solid fa-xmark"></i></button>
+        
+        <!-- Auth Header -->
+        <div class="auth-modal-header">
+            <div class="auth-logo-circle"><i class="fa-solid fa-store"></i></div>
+            <h3 id="authModalTitle">Welcome to VSN</h3>
+            <p class="modal-sub" id="authModalSub">Sign in to continue</p>
+        </div>
+        
+        <!-- Auth Tabs -->
+        <div class="auth-tabs" id="authTabs">
+            <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+            <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+            </button>
+        </div>
+
+        <!-- ── LOGIN PANEL ── -->
+        <div id="authPanelLogin" class="auth-panel active-auth-panel">
+            <form onsubmit="handleLogin(event)">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="loginEmail" class="auth-input" placeholder="Email Address" required autocomplete="email">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="auth-eye-btn" onclick="toggleAuthPassword('loginPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <p id="loginError" class="form-error" style="display:none"></p>
+                <button type="submit" id="loginBtn" class="primary-btn auth-submit-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+            </form>
+            <div class="auth-footer-link">
+                <a href="#" onclick="switchAuthTab('forgot')">
+                    <i class="fa-solid fa-key"></i> Forgot Password?
+                </a>
+            </div>
+        </div>
+
+        <!-- ── SIGN UP PANEL ── -->
+        <div id="authPanelRegister" class="auth-panel">
+            <form onsubmit="handleRegister(event)">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="regName" class="auth-input" placeholder="Full Name *" required autocomplete="name">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="regEmail" class="auth-input" placeholder="Email Address *" required autocomplete="email">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="regPhone" class="auth-input" placeholder="Phone Number *" required autocomplete="tel">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="regPassword" class="auth-input" placeholder="Password (min 6 chars) *" required minlength="6" autocomplete="new-password">
+                    <button type="button" class="auth-eye-btn" onclick="toggleAuthPassword('regPassword', this)">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-gift"></i>
+                    <input type="text" id="regReferral" class="auth-input" placeholder="Referral Code (optional)">
+                </div>
+                <p id="regError" class="form-error" style="display:none"></p>
+                <button type="submit" id="registerBtn" class="primary-btn auth-submit-btn">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            <p class="auth-terms">By signing up, you agree to our Terms of Service and get exclusive wholesale access.</p>
+        </div>
+
+        <!-- ── FORGOT PASSWORD PANEL ── -->
+        <div id="authPanelForgot" class="auth-panel">
+            <div class="auth-forgot-header">
+                <button class="auth-back-btn" onclick="switchAuthTab('login')">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Login
+                </button>
+                <h4 id="forgotTitle">Reset Password</h4>
+                <p id="forgotSubtitle" style="font-size:0.82rem;color:var(--text-muted);margin-top:0.25rem;">Enter your registered email to reset your password.</p>
+            </div>
+            <!-- Step 1 -->
+            <form id="forgotStep1Form" onsubmit="handleForgotEmail(event)">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="forgotEmail" class="auth-input" placeholder="Registered Email Address" required>
+                </div>
+                <p id="forgotEmailError" class="form-error" style="display:none"></p>
+                <button type="submit" id="forgotEmailBtn" class="primary-btn auth-submit-btn">
+                    <i class="fa-solid fa-paper-plane"></i> Verify Email
+                </button>
+            </form>
+            <!-- Step 2 -->
+            <form id="forgotStep2Form" onsubmit="handleForgotReset(event)" style="display:none;">
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="forgotNewPassword" class="auth-input" placeholder="New Password (min 6 chars)" required minlength="6">
+                </div>
+                <div class="auth-input-group">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <input type="password" id="forgotConfirmPassword" class="auth-input" placeholder="Confirm New Password" required minlength="6">
+                </div>
+                <p id="forgotResetError" class="form-error" style="display:none"></p>
+                <button type="submit" id="forgotResetBtn" class="primary-btn auth-submit-btn">
+                    <i class="fa-solid fa-key"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Register Modal (alias — same as loginModal now) ── -->
+<div class="modal" id="registerModal" style="display:none;"></div>
+<!-- ─── Forgot Modal (alias) ──────────────────────────── -->
+<div class="modal" id="forgotModal" style="display:none;"></div>
+
+
+<!-- ─── Product Detail Modal ───────────────────────── -->
+<div class="modal" id="productDetailModal">
+    <div class="modal-box" style="max-width: 580px;">
+        <button class="modal-close" onclick="closeModal('productDetailModal')"><i class="fa-solid fa-xmark"></i></button>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+            <div style="flex: 1; min-width: 220px; position: relative;">
+                <div id="detailImgWrapper" style="width:100%;height:240px;border-radius:16px;overflow:hidden;border:1px solid var(--border-color);background:linear-gradient(135deg,#f0f9ff,#e0f2fe);display:flex;align-items:center;justify-content:center;">
+                    <img id="detailImg" src="" alt=""
+                         style="width:100%;height:100%;object-fit:cover;transition:opacity 0.3s;"
+                         onload="this.style.opacity=1;document.getElementById('detailImgFallback').style.display='none';"
+                         onerror="this.style.display='none';document.getElementById('detailImgFallback').style.display='flex';">
+                    <div id="detailImgFallback" style="display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:0.5rem;">
+                        <span style="font-size:3.5rem;">🛒</span>
+                        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">No image available</span>
+                    </div>
+                </div>
+            </div>
+            <div style="flex: 1.2; min-width: 240px; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <span id="detailCategory" style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: var(--primary-color); letter-spacing: 0.05em; display: inline-block; margin-bottom: 0.25rem;"></span>
+                    <h3 id="detailName" style="font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; line-height: 1.2;"></h3>
+                    <p id="detailDesc" style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1rem;"></p>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Wholesale Price</span>
+                            <span id="detailWholesale" style="font-size: 1.3rem; font-weight: 800; color: var(--text-main);"></span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Retail Price</span>
+                            <span id="detailRetail" style="font-size: 1rem; text-decoration: line-through; color: var(--text-muted); display: inline-block; margin-top: 0.25rem;"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-bottom: 0.75rem;">
+                        <span style="color: var(--text-muted);">Min Order Qty</span>
+                        <strong id="detailMinQty" style="color: var(--text-main);">1 unit</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px dashed var(--border-color); padding-top: 0.5rem; margin-bottom: 1rem;">
+                        <span style="color: var(--text-muted);">Stock Status</span>
+                        <strong id="detailStock" style="color: var(--accent-color);">In Stock</strong>
+                    </div>
+                    <button id="detailAddBtn" class="primary-btn" style="width: 100%; justify-content: center; border-radius: 12px;">
+                        <i class="fa-solid fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- ─── Razorpay Modal ──────────────────────────────── -->
+<div class="modal" id="razorpayModal">
+    <div class="modal-box" style="max-width: 440px; padding: 0; overflow: hidden; border-radius: 20px; border: 1px solid var(--border-color); background: var(--bg-main);">
+        <!-- Modal Header -->
+        <div style="background: #1a4cc1; color: white; padding: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-shield-halved" style="font-size: 1.25rem;"></i>
+                <span style="font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px;">Razorpay Secure</span>
+                <span style="background: rgba(255,255,255,0.2); font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 0.5px;">DUMMY</span>
+            </div>
+            <button class="modal-close" onclick="closeModal('razorpayModal')" style="position: static; color: white; opacity: 0.8; font-size: 1rem; cursor: pointer; background: none; border: none;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="padding: 1.5rem;">
+            <!-- Status Message / Simulated Screen -->
+            <div id="rzpSimulatedScreen" style="display: none; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0;">
+                <div id="rzpStatusIconWrap" style="width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+                    <i id="rzpStatusIcon" class="fa-solid" style="font-size: 2.5rem; color: white;"></i>
+                </div>
+                <h4 id="rzpStatusTitle" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;"></h4>
+                <p id="rzpStatusDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; padding: 0 1rem; line-height: 1.4;"></p>
+                <button id="rzpCloseBtn" class="primary-btn" onclick="closeModal('razorpayModal')" style="padding: 0.8rem 2.5rem; border-radius: 30px; justify-content: center; margin: 0 auto; display: block;">Close</button>
+            </div>
+
+            <!-- Standard Gateway Simulation Main Screen -->
+            <div id="rzpMainScreen" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div style="text-align: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Payment Amount</span>
+                    <h2 id="rzpAmountDisplay" style="font-size: 2.25rem; font-weight: 900; color: var(--text-main); margin-top: 0.25rem;">₹0.00</h2>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.02); padding: 0.85rem; border-radius: 10px; border: 1px solid var(--border-color);">
+                        <i class="fa-solid fa-shield-heart" style="color: #1a4cc1; font-size: 1.1rem; width: 20px;"></i>
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">100% Secure Transaction</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; background: rgba(0,0,0,0.02); padding: 0.85rem; border-radius: 10px; border: 1px solid var(--border-color);">
+                        <i class="fa-solid fa-bolt" style="color: #1a4cc1; font-size: 1.1rem; width: 20px;"></i>
+                        <span style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">Instant Order Confirmation</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.5rem;">
+                    <button id="rzpPayBtn" class="primary-btn" onclick="initiateRzpCheckout()" style="background: #1a4cc1; color: white; justify-content: center; padding: 0.9rem; border-radius: 12px; font-weight: 800; gap: 0.5rem; width: 100%;">
+                        <i class="fa-solid fa-lock"></i> OPEN SECURE GATEWAY
+                    </button>
+                    
+                    <button id="rzpSimulateBtn" class="outline-btn" onclick="simulateRzpSuccess()" style="justify-content: center; padding: 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: var(--secondary-color); border: 1px solid var(--secondary-color); background: rgba(0,165,100,0.05); width: 100%;">
+                        SIMULATE SUCCESS (DEV ONLY)
+                    </button>
+                </div>
+
+                <!-- Test Credentials Card -->
+                <div style="margin-top: 0.5rem; background: rgba(0,0,0,0.02); border: 1px solid var(--border-color); border-radius: 10px; padding: 0.75rem; color: var(--text-main);">
+                    <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0.5rem;">Test Credentials</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Card Number</span><strong style="font-family: monospace;">4111 1111 1111 1111</strong></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Expiry / CVV</span><strong style="font-family: monospace;">12/30 | 123</strong></div>
+                        <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">OTP / UPI ID</span><strong style="font-family: monospace;">123456 | success@razorpay</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Mock Razorpay Form Screen -->
+            <div id="rzpFormScreen" style="display: none; flex-direction: column; gap: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+                    <div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block; text-transform: uppercase; font-weight: 700;">Amount Payable</span>
+                        <strong id="rzpFormAmount" style="font-size: 1.25rem; color: var(--text-main);">₹0.00</strong>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Prefill Contact</span>
+                        <span id="rzpPrefillContact" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">email@test.com</span>
+                    </div>
+                </div>
+
+                <!-- Tabs navigation -->
+                <div style="display: flex; background: rgba(0,0,0,0.03); padding: 0.25rem; border-radius: 10px; border: 1px solid var(--border-color); gap: 0.25rem;">
+                    <button type="button" class="rzp-tab-btn active" onclick="switchRzpTab('card')" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white; color: #1a4cc1; box-shadow: var(--shadow-sm);">Card</button>
+                    <button type="button" class="rzp-tab-btn" onclick="switchRzpTab('upi')" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);">UPI</button>
+                    <button type="button" class="rzp-tab-btn" onclick="switchRzpTab('netbank')" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);">Netbank</button>
+                    <button type="button" class="rzp-tab-btn" onclick="switchRzpTab('wallet')" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);">Wallet</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div>
+                    <!-- Card Tab -->
+                    <div id="rzpTabContent_card" class="rzp-tab-content" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Card Number</label>
+                            <input type="text" id="rzpCardNo" class="modal-input" placeholder="4111 1111 1111 1111" maxlength="19" style="margin-bottom: 0;" oninput="formatCardNumber(this)">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Expiry Date</label>
+                                <input type="text" id="rzpCardExpiry" class="modal-input" placeholder="MM/YY" maxlength="5" style="margin-bottom: 0;" oninput="formatExpiry(this)">
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">CVV</label>
+                                <input type="password" id="rzpCardCvv" class="modal-input" placeholder="123" maxlength="3" style="margin-bottom: 0;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Card Holder Name</label>
+                            <input type="text" id="rzpCardHolder" class="modal-input" placeholder="John Doe" style="margin-bottom: 0;">
+                        </div>
+                    </div>
+
+                    <!-- UPI Tab -->
+                    <div id="rzpTabContent_upi" class="rzp-tab-content" style="display: none; flex-direction: column; gap: 0.85rem;">
+                        <div>
+                            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">UPI ID</label>
+                            <input type="text" id="rzpUpiId" class="modal-input" placeholder="success@razorpay" style="margin-bottom: 0;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.02); border: 1px dashed var(--border-color); padding: 1rem; border-radius: 12px;">
+                            <i class="fa-solid fa-qrcode" style="font-size: 3.5rem; color: #1a4cc1;"></i>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Or scan QR code shown on the payment screen</span>
+                        </div>
+                    </div>
+
+                    <!-- Netbanking Tab -->
+                    <div id="rzpTabContent_netbank" class="rzp-tab-content" style="display: none; flex-direction: column; gap: 0.85rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Select Popular Bank</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <label class="rzp-bank-card" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; background: var(--bg-main);">
+                                <input type="radio" name="rzpBank" value="SBI" checked> State Bank of India
+                            </label>
+                            <label class="rzp-bank-card" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; background: var(--bg-main);">
+                                <input type="radio" name="rzpBank" value="HDFC"> HDFC Bank
+                            </label>
+                            <label class="rzp-bank-card" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; background: var(--bg-main);">
+                                <input type="radio" name="rzpBank" value="ICICI"> ICICI Bank
+                            </label>
+                            <label class="rzp-bank-card" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; background: var(--bg-main);">
+                                <input type="radio" name="rzpBank" value="AXIS"> Axis Bank
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Tab -->
+                    <div id="rzpTabContent_wallet" class="rzp-tab-content" style="display: none; flex-direction: column; gap: 0.85rem;">
+                        <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Select Wallet</label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="rzp-wallet-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; background: var(--bg-main);">
+                                <span style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem; font-weight: 600;"><i class="fa-solid fa-wallet" style="color: #10b981;"></i> Paytm Wallet</span>
+                                <input type="radio" name="rzpWallet" value="Paytm" checked>
+                            </label>
+                            <label class="rzp-wallet-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; background: var(--bg-main);">
+                                <span style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem; font-weight: 600;"><i class="fa-solid fa-mobile-screen-button" style="color: #8b5cf6;"></i> PhonePe</span>
+                                <input type="radio" name="rzpWallet" value="PhonePe">
+                            </label>
+                            <label class="rzp-wallet-row" style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; background: var(--bg-main);">
+                                <span style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.88rem; font-weight: 600;"><i class="fa-brands fa-amazon" style="color: #f59e0b;"></i> Amazon Pay</span>
+                                <input type="radio" name="rzpWallet" value="AmazonPay">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                    <button type="button" id="rzpSubmitPaymentBtn" class="primary-btn" onclick="submitMockPayment()" style="background: #1a4cc1; color: white; justify-content: center; padding: 0.85rem; border-radius: 12px; font-weight: 800; width: 100%;">
+                        Pay Now
+                    </button>
+                    <button type="button" class="outline-btn" onclick="goBackToRzpMain()" style="justify-content: center; padding: 0.65rem; border-radius: 10px; font-size: 0.8rem; border: 1px solid var(--border-color);">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Custom Mock OTP Verification Screen -->
+            <div id="rzpOtpScreen" style="display: none; flex-direction: column; gap: 1.25rem; align-items: center; text-align: center; padding: 0.5rem 0;">
+                <div style="width: 60px; height: 60px; background: rgba(26, 76, 193, 0.08); color: #1a4cc1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 0.25rem;">
+                    <i class="fa-solid fa-message" style="font-size: 1.75rem;"></i>
+                </div>
+                <div>
+                    <h4 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.25rem;">Enter OTP Code</h4>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; line-height: 1.4; max-width: 280px; margin: 0 auto;">Simulated OTP has been sent via SMS. Enter <strong style="color: var(--primary-color);">123456</strong> to approve this payment.</p>
+                </div>
+
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+                    <input type="text" id="rzpOtpInput" class="modal-input" placeholder="••••••" maxlength="6" style="text-align: center; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5rem; width: 180px; padding: 0.6rem; border-radius: 12px; margin-bottom: 0;">
+                    <span id="rzpOtpError" style="color: #ef4444; font-size: 0.75rem; display: none;">Invalid OTP! Please try again.</span>
+                </div>
+
+                <div id="rzpOtpLoading" style="display: none; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-spinner fa-spin" style="color: #1a4cc1;"></i> Verifying payment details...
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%; margin-top: 0.5rem;">
+                    <button type="button" id="rzpVerifyOtpBtn" class="primary-btn" onclick="verifyMockOtp()" style="background: #1a4cc1; color: white; justify-content: center; padding: 0.85rem; border-radius: 12px; font-weight: 800; width: 100%;">
+                        Submit OTP
+                    </button>
+                    <button type="button" class="outline-btn" onclick="goBackToRzpForm()" style="justify-content: center; padding: 0.65rem; border-radius: 10px; font-size: 0.8rem; width: 100%; border: 1px solid var(--border-color);">
+                        Back to payment methods
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div style="background: rgba(0,0,0,0.02); padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; font-weight: 600;">
+            <i class="fa-solid fa-lock"></i>
+            <span>RAZORPAY TRUSTED GATEWAY</span>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Admin Modals ─────────────────────────────────── -->
+<div class="modal" id="orderModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('orderModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:1.5rem">Order Details</h3>
+        <div id="orderModalContent"></div>
+    </div>
+</div>
+
+<div class="modal" id="productModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('productModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:1.5rem">Add New Product</h3>
+        <div class="edit-form-row">
+            <div class="edit-form-group"><label>Product Name *</label><input type="text" id="pName" class="edit-form-input" placeholder="e.g. Basmati Rice (Premium)"></div>
+            <div class="edit-form-group"><label>Category *</label><input type="text" id="pCategory" class="edit-form-input" placeholder="e.g. Staples"></div>
+        </div>
+        <div class="edit-form-row">
+            <div class="edit-form-group"><label>Retail Price ₹ *</label><input type="number" id="pRetail" class="edit-form-input" placeholder="500"></div>
+            <div class="edit-form-group"><label>Wholesale Price ₹ *</label><input type="number" id="pWholesale" class="edit-form-input" placeholder="450"></div>
+        </div>
+        <div class="edit-form-row">
+            <div class="edit-form-group"><label>Min Order Qty</label><input type="number" id="pMinQty" class="edit-form-input" placeholder="1" value="1"></div>
+            <div class="edit-form-group"><label>Stock Status</label>
+                <select id="pStock" class="edit-form-input">
+                    <option>In Stock</option><option>Low Stock</option><option>Out of Stock</option>
+                </select>
+            </div>
+        </div>
+        <div class="edit-form-group">
+            <label>Image URL</label>
+            <input type="text" id="pImage" class="edit-form-input" placeholder="https://..." oninput="previewProductImage(this.value)">
+            <div id="imgPreviewBox" style="display:none;margin-top:0.75rem;border-radius:12px;overflow:hidden;border:2px solid var(--border-color);background:var(--bg-main);text-align:center;padding:0.5rem;">
+                <img id="imgPreviewEl" src="" alt="Preview" style="max-height:140px;max-width:100%;border-radius:8px;object-fit:contain;"
+                     onload="document.getElementById('imgPreviewStatus').innerHTML='<span style=\'color:#10b981\'>✅ Image loaded successfully!</span>';this.style.opacity=1;"
+                     onerror="document.getElementById('imgPreviewStatus').innerHTML='<span style=\'color:#ef4444\'>❌ Cannot load image — check URL</span>';this.style.opacity=0.2;">
+                <div id="imgPreviewStatus" style="font-size:0.78rem;margin-top:0.4rem;font-weight:500;"></div>
+            </div>
+        </div>
+        <div class="edit-form-group" style="display:flex;align-items:center;gap:0.75rem;margin-top:0.5rem">
+            <input type="checkbox" id="pTrending" style="width:18px;height:18px;">
+            <label for="pTrending">Mark as Trending</label>
+        </div>
+        <p id="productErr" class="form-error" style="display:none;margin-top:0.5rem"></p>
+        <button class="primary-btn" style="margin-top:1.5rem;width:100%;justify-content:center;" onclick="submitProduct()"><i class="fa-solid fa-plus"></i> Add Product</button>
+    </div>
+</div>
+
+<div class="modal" id="statusModal">
+    <div class="modal-box" style="max-width:420px">
+        <button class="modal-close" onclick="closeModal('statusModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="margin-bottom:0.5rem">Update Order Status</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem">Order: <code id="statusOrderIdLabel"></code></p>
+        <div class="edit-form-row">
+            <div class="edit-form-group">
+                <label>Order Status</label>
+                <select id="statusSelect" class="edit-form-input">
+                    <option>Pending</option>
+                    <option>Processing</option>
+                    <option>Shipped</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                </select>
+            </div>
+            <div class="edit-form-group">
+                <label>Payment Status</label>
+                <select id="paymentStatusSelect" class="edit-form-input">
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Failed</option>
+                    <option>Refunded</option>
+                </select>
+            </div>
+        </div>
+        <button id="saveStatusBtn" class="primary-btn" style="margin-top:1rem;width:100%;justify-content:center;" onclick="saveOrderStatus()">
+            <i class="fa-solid fa-check"></i> Save Changes
+        </button>
+    </div>
+</div>
+
+<!-- ─── PWA Install Banner ────────────────────────── -->
+<div id="pwaInstallBanner" class="pwa-banner" style="display:none;">
+    <div class="pwa-banner-content">
+        <i class="fa-solid fa-download" style="color:var(--primary-color);font-size:1.5rem;"></i>
+        <div>
+            <h4>Install VSN Wholesale</h4>
+            <p>Add to your home screen for quick offline access and orders</p>
+        </div>
+    </div>
+    <div style="display:flex;gap:0.5rem;">
+        <button class="primary-btn" id="pwaInstallBtn" style="padding:0.5rem 1rem;font-size:0.8rem;border-radius:8px;">Install</button>
+        <button class="outline-btn" onclick="dismissPwaBanner()" style="padding:0.5rem;font-size:0.8rem;border-radius:8px;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+</div>
+
+<!-- ─── Utility Floating Speed Dial ───────────────── -->
+<div id="utilityFabMenu" class="fab-menu">
+    <div class="fab-options" id="fabOptions">
+        <button class="fab-sub-btn" onclick="openModal('calculatorModal')" title="Business Calculator"><i class="fa-solid fa-calculator"></i></button>
+        <button class="fab-sub-btn" onclick="openModal('calendarModal')" title="Business Calendar"><i class="fa-solid fa-calendar-days"></i></button>
+        <button class="fab-sub-btn" onclick="toggleFloatingChat()" title="AI Business Strategist"><i class="fa-solid fa-robot"></i></button>
+    </div>
+    <button class="fab-main-btn" onclick="toggleFabMenu()" id="fabMainBtn" title="Business Tools">
+        <i class="fa-solid fa-ellipsis-vertical" id="fabMainIcon"></i>
+    </button>
+</div>
+
+<!-- ─── Business Calculator Modal ──────────────────── -->
+<div class="modal" id="calculatorModal">
+    <div class="modal-box" style="max-width:320px;padding:1.25rem;border-radius:24px;">
+        <button class="modal-close" onclick="closeModal('calculatorModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.2rem;margin-bottom:1rem;"><i class="fa-solid fa-calculator" style="color:var(--primary-color)"></i> Wholesale Calculator</h3>
+        <div class="calc-screen" id="calcScreen" style="background:#f1f5f9;color:var(--text-main);padding:1rem;font-size:1.5rem;text-align:right;font-weight:700;border-radius:12px;margin-bottom:1rem;min-height:56px;overflow-x:auto;">0</div>
+        <div class="calc-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;">
+            <button class="calc-btn op" onclick="clearCalc()">C</button>
+            <button class="calc-btn op" onclick="backspaceCalc()"><i class="fa-solid fa-backspace"></i></button>
+            <button class="calc-btn op" onclick="inputCalcOp('%')">%</button>
+            <button class="calc-btn op" onclick="inputCalcOp('/')">/</button>
+            
+            <button class="calc-btn" onclick="inputCalcNum('7')">7</button>
+            <button class="calc-btn" onclick="inputCalcNum('8')">8</button>
+            <button class="calc-btn" onclick="inputCalcNum('9')">9</button>
+            <button class="calc-btn op" onclick="inputCalcOp('*')">×</button>
+            
+            <button class="calc-btn" onclick="inputCalcNum('4')">4</button>
+            <button class="calc-btn" onclick="inputCalcNum('5')">5</button>
+            <button class="calc-btn" onclick="inputCalcNum('6')">6</button>
+            <button class="calc-btn op" onclick="inputCalcOp('-')">-</button>
+            
+            <button class="calc-btn" onclick="inputCalcNum('1')">1</button>
+            <button class="calc-btn" onclick="inputCalcNum('2')">2</button>
+            <button class="calc-btn" onclick="inputCalcNum('3')">3</button>
+            <button class="calc-btn op" onclick="inputCalcOp('+')">+</button>
+            
+            <button class="calc-btn" onclick="inputCalcNum('0')" style="grid-column:span 2">0</button>
+            <button class="calc-btn" onclick="inputCalcNum('.')">.</button>
+            <button class="calc-btn op" onclick="evalCalc()" style="background:var(--primary-color);color:white;">=</button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Business Calendar Modal ────────────────────── -->
+<div class="modal" id="calendarModal">
+    <div class="modal-box" style="max-width:440px;border-radius:24px;">
+        <button class="modal-close" onclick="closeModal('calendarModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.2rem;margin-bottom:1rem;"><i class="fa-solid fa-calendar-days" style="color:var(--primary-color)"></i> B2B Logistics Calendar</h3>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;">Active wholesale delivery schedule and grain market event markers.</p>
+        <div style="background:#f8fafc;border-radius:16px;padding:1rem;border:1px solid var(--border-color);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;font-weight:700;">
+                <span>May 2026</span>
+                <span style="font-size:0.8rem;color:var(--primary-color);">Nagpur-Vijayawada Hub</span>
+            </div>
+            <!-- Dynamic calendar grids will be rendered in js -->
+            <div class="calendar-days-grid" id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:0.35rem;text-align:center;font-size:0.8rem;">
+            </div>
+        </div>
+        <div id="calendarEventsList" style="margin-top:1.25rem;max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:0.5rem;">
+            <!-- Selected date events -->
+        </div>
+    </div>
+</div>
+
+<!-- ─── Map Picker Modal ──────────────────────────── -->
+<div class="modal" id="mapPickerModal">
+    <div class="modal-box" style="max-width:480px;border-radius:24px;">
+        <button class="modal-close" onclick="closeModal('mapPickerModal')"><i class="fa-solid fa-xmark"></i></button>
+        <h3 style="font-size:1.25rem;margin-bottom:0.75rem;"><i class="fa-solid fa-map-location-dot" style="color:var(--primary-color)"></i> Location Map Picker</h3>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:1.25rem;">Select your wholesale delivery coordinates. Lock the pin onto your retail store location.</p>
+        
+        <!-- Mock Map Container -->
+        <div style="width:100%;height:260px;background:#e5e7eb;border-radius:16px;position:relative;overflow:hidden;border:1px solid var(--border-color);cursor:crosshair;" onclick="handleMapPickerClick(event)">
+            <!-- Grid lines / representation -->
+            <div style="position:absolute;inset:0;background-image:radial-gradient(circle,#94a3b8 1px,transparent 1px);background-size:20px 20px;opacity:0.3;"></div>
+            <!-- Mock Hub marker -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+                <div style="width:12px;height:12px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.3);margin:0 auto 4px auto;"></div>
+                <span style="background:rgba(15,23,42,0.85);color:white;font-size:0.6rem;padding:2px 6px;border-radius:4px;font-weight:700;white-space:nowrap;">Vijayawada Goods Hub</span>
+            </div>
+            <!-- Locked user marker -->
+            <div id="mapUserMarker" style="position:absolute;top:60%;left:40%;transform:translate(-50%,-100%);text-align:center;display:none;pointer-events:none;transition:all 0.2s;">
+                <i class="fa-solid fa-location-pin" style="color:#ef4444;font-size:2rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));"></i>
+            </div>
+            <!-- Instructions overlay -->
+            <div style="position:absolute;bottom:0.75rem;left:0.75rem;right:0.75rem;background:rgba(255,255,255,0.9);padding:0.4rem 0.8rem;border-radius:8px;font-size:0.75rem;font-weight:600;text-align:center;color:var(--text-main);box-shadow:var(--shadow-sm);pointer-events:none;">
+                👆 Tap anywhere on the map to place your delivery pin
+            </div>
+        </div>
+        
+        <div style="display:flex;justify-content:space-between;margin-top:1.25rem;font-size:0.85rem;background:var(--bg-main);padding:0.75rem 1rem;border-radius:12px;border:1px solid var(--border-color);align-items:center;">
+            <div>
+                <span style="display:block;font-size:0.72rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;">Locked Coordinates</span>
+                <strong id="mapCoordsLabel" style="font-family:monospace;color:var(--text-main);">Lat: 21.1458, Lng: 79.0882</strong>
+            </div>
+            <button class="primary-btn" onclick="lockMapCoordinates()" style="padding:0.5rem 1rem;font-size:0.8rem;border-radius:8px;">Lock Coordinate</button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Language Modal ────────────────────────────── -->
+<div class="modal" id="languageModal">
+    <div class="modal-box" style="max-width:380px;border-radius:24px;text-align:center;padding:2rem 1.5rem;">
+        <h3 style="font-size:1.4rem;margin-bottom:0.5rem;font-weight:800;">Choose Language</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">अपनी भाषा चुनें | మీ భాషను ఎంచుకోండి | உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
+            <button type="button" class="lang-card active" id="lang_english" onclick="selectAppLanguage('english')">
+                <span style="font-size:1.75rem;margin-bottom:0.35rem;display:block;">🇬🇧</span>
+                <b>English</b>
+            </button>
+            <button type="button" class="lang-card" id="lang_hindi" onclick="selectAppLanguage('hindi')">
+                <span style="font-size:1.75rem;margin-bottom:0.35rem;display:block;">🇮🇳</span>
+                <b>हिन्दी (Hindi)</b>
+            </button>
+            <button type="button" class="lang-card" id="lang_telugu" onclick="selectAppLanguage('telugu')">
+                <span style="font-size:1.75rem;margin-bottom:0.35rem;display:block;">🇮🇳</span>
+                <b>తెలుగు (Telugu)</b>
+            </button>
+            <button type="button" class="lang-card" id="lang_tamil" onclick="selectAppLanguage('tamil')">
+                <span style="font-size:1.75rem;margin-bottom:0.35rem;display:block;">🇮🇳</span>
+                <b>தமிழ் (Tamil)</b>
+            </button>
+        </div>
+        <button class="primary-btn" style="width:100%;justify-content:center;padding:0.8rem;border-radius:12px;" onclick="closeModal('languageModal')">Confirm Selection</button>
+    </div>
+</div>
+
+<!-- ─── Toast ──────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

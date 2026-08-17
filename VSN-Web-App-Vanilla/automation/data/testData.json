@@ -1,0 +1,25 @@
+{
+  "adminCredentials": {
+    "valid": {
+      "email": "admin@vsnhome.com",
+      "password": "Admin@123"
+    },
+    "invalid": [
+      { "email": "wrong@email.com", "password": "WrongPass" },
+      { "email": "", "password": "" },
+      { "email": "notanemail", "password": "anypass" },
+      { "email": "admin@vsnhome.com", "password": "" },
+      { "email": "", "password": "Admin@123" }
+    ]
+  },
+  "searchTerms": {
+    "valid": ["rice", "sugar", "oil", "milk", "atta"],
+    "invalid": ["xyzabc123notaproduct", "@@@@", ""],
+    "specialChars": ["<script>alert(1)</script>", "' OR 1=1 --", "%%"],
+    "longString": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  "navigation": {
+    "views": ["home", "categories", "offers", "orders", "chatbot", "analytics"]
+  },
+  "adminTabs": ["dashboard", "orders", "products", "users", "notifications", "settings"]
+}

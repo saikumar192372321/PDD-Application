@@ -1,0 +1,28 @@
+{
+  "name": "vsn-grocery-e2e",
+  "version": "1.0.0",
+  "description": "VSN Grocery Web Application — Playwright E2E Automation Framework",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:auth": "playwright test automation/tests/auth.spec.ts",
+    "test:nav": "playwright test automation/tests/navigation.spec.ts",
+    "test:admin": "playwright test automation/tests/admin.spec.ts",
+    "test:regression": "playwright test automation/tests/regression-crud.spec.ts",
+    "report:generate": "node automation/utils/generateReport.js",
+    "report:all": "npm run test && npm run report:generate",
+    "serve": "serve . --listen 3000",
+    "start": "serve . --listen 3000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "serve": "^14.2.6"
+  }
+}

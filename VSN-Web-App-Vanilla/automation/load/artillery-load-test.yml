@@ -1,0 +1,62 @@
+config:
+  target: "https://saikumar192372321.github.io/PDD-Application"
+  http:
+    timeout: 30
+  phases:
+    - name: "Baseline Load (100 users, 1 minute)"
+      duration: 60
+      arrivalRate: 10
+      maxVusers: 100
+    - name: "Ramp up to Stress (200 users)"
+      duration: 60
+      arrivalRate: 20
+      maxVusers: 200
+    - name: "Spike Test (50 → 500 users)"
+      duration: 30
+      arrivalRate: 50
+      maxVusers: 500
+    - name: "Recovery"
+      duration: 30
+      arrivalRate: 10
+      maxVusers: 50
+
+scenarios:
+  - name: "Load Store Page"
+    weight: 50
+    flow:
+      - get:
+          url: "/VSN-Web-App-Vanilla/index.html"
+          expect:
+            - statusCode: 200
+            - hasHeader: "content-type"
+            - contentType: "text/html"
+          capture:
+            - header: "content-length"
+              as: "contentLength"
+      - think: 1
+
+  - name: "Load Admin Page"
+    weight: 30
+    flow:
+      - get:
+          url: "/VSN-Web-App-Vanilla/admin.html"
+          expect:
+            - statusCode: 200
+            - contentType: "text/html"
+      - think: 0.5
+
+  - name: "Load Static Assets"
+    weight: 20
+    flow:
+      - get:
+          url: "/VSN-Web-App-Vanilla/manifest.json"
+          expect:
+            - statusCode: 200
+
+plugins:
+  expect: {}
+  metrics-by-endpoint: {}
+
+ensure:
+  p99: 3000
+  maxErrorRate: 5

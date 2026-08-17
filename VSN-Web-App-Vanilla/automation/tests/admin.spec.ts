@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { StorePage } from '../pages/StorePage';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // ADMIN DASHBOARD TESTS — 40 Test Cases (TC_ADMIN_001-040)
@@ -10,6 +11,7 @@ test.describe('Admin Dashboard Tests', () => {
   let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     loginPage = new LoginPage(page);
     await loginPage.navigate();
     await loginPage.login('admin@vsnhome.com', 'Admin@123');

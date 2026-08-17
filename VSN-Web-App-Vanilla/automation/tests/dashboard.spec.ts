@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // DASHBOARD / HOME TESTS — 20 Test Cases (TC_DASH_001-020)
@@ -9,6 +10,7 @@ test.describe('Dashboard / Home View Tests', () => {
   let store: StorePage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     store = new StorePage(page);
     await store.navigate();
   });

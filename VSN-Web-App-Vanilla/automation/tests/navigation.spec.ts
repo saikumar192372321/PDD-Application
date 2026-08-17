@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
 import testData from '../data/testData.json';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // NAVIGATION TESTS — 30 Test Cases (TC_NAV_001 to TC_NAV_030)
@@ -10,6 +11,7 @@ test.describe('Navigation Tests', () => {
   let store: StorePage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     store = new StorePage(page);
     await store.navigate();
   });

@@ -7,7 +7,7 @@ export class AdminPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.dashboardHeader = page.locator('h1', { hasText: 'Dashboard' });
+    this.dashboardHeader = page.locator('h2', { hasText: 'Dashboard' });
     this.logoutButton = page.locator('button', { hasText: 'Logout' });
   }
 

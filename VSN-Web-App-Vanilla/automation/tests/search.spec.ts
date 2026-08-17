@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
 import testData from '../data/testData.json';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // SEARCH TESTS — 20 Test Cases (TC_SEARCH_001 to TC_SEARCH_020)
@@ -10,6 +11,7 @@ test.describe('Search Tests', () => {
   let store: StorePage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     store = new StorePage(page);
     await store.navigate();
   });

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
 import { LoginPage } from '../pages/LoginPage';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // ERROR HANDLING + SESSION + NOTIFICATIONS + PERFORMANCE SMOKE
@@ -10,6 +11,7 @@ import { LoginPage } from '../pages/LoginPage';
 
 test.describe('Error Handling Tests', () => {
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     const store = new StorePage(page);
     await store.navigate();
   });
@@ -335,6 +337,7 @@ test.describe('Notifications Tests', () => {
   let store: StorePage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     store = new StorePage(page);
     await store.navigate();
   });

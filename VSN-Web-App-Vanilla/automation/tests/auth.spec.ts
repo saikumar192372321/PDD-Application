@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import testData from '../data/testData.json';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // AUTHENTICATION TESTS — 40 Test Cases
@@ -11,6 +12,7 @@ test.describe('Authentication Tests', () => {
   let loginPage: LoginPage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     loginPage = new LoginPage(page);
     await loginPage.navigate();
   });

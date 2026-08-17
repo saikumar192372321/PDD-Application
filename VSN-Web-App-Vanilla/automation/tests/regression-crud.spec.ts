@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
 import { LoginPage } from '../pages/LoginPage';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // REGRESSION SUITE — 50 Test Cases (TC_REG_001-050)
@@ -343,6 +344,7 @@ test.describe('Forms and CRUD Tests', () => {
   let login: LoginPage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     login = new LoginPage(page);
     await login.navigate();
     await login.login('admin@vsnhome.com', 'Admin@123');

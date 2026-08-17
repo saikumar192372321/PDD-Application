@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { StorePage } from '../pages/StorePage';
+import { setupBackendMocks } from '../utils/mockBackend';
 
 // ============================================================
 // UI / RESPONSIVE / ACCESSIBILITY TESTS — 50 Test Cases
@@ -10,6 +11,7 @@ test.describe('UI, Accessibility & Responsive Tests', () => {
   let store: StorePage;
 
   test.beforeEach(async ({ page }) => {
+    await setupBackendMocks(page);
     store = new StorePage(page);
     await store.navigate();
   });

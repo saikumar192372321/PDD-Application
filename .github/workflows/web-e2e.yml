@@ -382,15 +382,9 @@ jobs:
 
       - name: "⚡ Install k6"
         run: |
-          sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
-            --keyserver hkp://keyserver.ubuntu.com:80 \
-            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69 2>/dev/null || \
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://dl.k6.io/key.gpg 2>/dev/null | sudo apt-key add - 2>/dev/null || true
-          sudo apt-get install -y k6 2>/dev/null || \
-          (curl -s https://github.com/grafana/k6/releases/download/v0.52.0/k6-v0.52.0-linux-amd64.tar.gz | tar xz && sudo mv k6-*/k6 /usr/local/bin/)
-          k6 version || echo "k6 installation skipped"
+          curl -sL https://github.com/grafana/k6/releases/download/v0.52.0/k6-v0.52.0-linux-amd64.tar.gz | tar xz
+          sudo mv k6-v0.52.0-linux-amd64/k6 /usr/local/bin/
+          k6 version
 
       - name: "⚡ Run k6 Baseline Load Test"
         working-directory: VSN-Web-App-Vanilla

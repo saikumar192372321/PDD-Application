@@ -61,12 +61,12 @@ jobs:
       - name: "🚀 Stage 5 — Start Local HTTP Server"
         working-directory: VSN-Web-App-Vanilla
         run: |
-          npx serve . --listen 3000 --no-clipboard &
+          npx serve . --listen tcp://127.0.0.1:3000 --no-clipboard &
           echo "SERVER_PID=$!" >> $GITHUB_ENV
           # Wait for server to be ready
           for i in {1..20}; do
-            if curl -s http://localhost:3000/index.html > /dev/null; then
-              echo "✅ Server is up at http://localhost:3000"
+            if curl -s http://127.0.0.1:3000/index.html > /dev/null; then
+              echo "✅ Server is up at http://127.0.0.1:3000"
               break
             fi
             echo "   Waiting for server... ($i/20)"
@@ -76,9 +76,9 @@ jobs:
       # ── Stage 6: Verify Server Health ────────────────────
       - name: "🔍 Stage 6 — Verify Server Health"
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/index.html 2>/dev/null || echo "000")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/index.html 2>/dev/null || echo "000")
           echo "   Store page status: $STATUS"
-          STATUS2=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/admin.html 2>/dev/null || echo "000")
+          STATUS2=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/admin.html 2>/dev/null || echo "000")
           echo "   Admin page status: $STATUS2"
           echo "✅ Server health verified"
 
@@ -94,7 +94,7 @@ jobs:
       - name: "🧪 Stage 8 — Execute Playwright E2E Tests"
         working-directory: VSN-Web-App-Vanilla
         env:
-          BASE_URL: http://localhost:3000
+          BASE_URL: http://127.0.0.1:3000
           CI: true
         run: |
           echo "🚀 Starting test execution..."

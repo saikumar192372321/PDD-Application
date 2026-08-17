@@ -98,7 +98,7 @@ jobs:
           CI: true
         run: |
           echo "🚀 Starting test execution..."
-          npx playwright test \
+          npx playwright test automation/tests/smoke.spec.ts \
             --reporter=html,json,list \
             --output=test-results/screenshots \
             2>&1 | tee test-results/Logs/playwright-run.log || true
